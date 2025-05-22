@@ -2,17 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>  // Add this for isdigit()
+#include <ctype.h>  
 
-// Global token variables
 Token* head = NULL;
 Token* current = NULL;
 
-// External declarations for the lexer
 extern FILE *yyin;
 extern int tokenizer();
 
-// Add a token to the linked list
 void addToken(TokenType type, const char* value) {
     Token* token = malloc(sizeof(Token));
     token->type = type;
@@ -31,7 +28,6 @@ void addToken(TokenType type, const char* value) {
     }
 }
 
-// Convert token type to string
 const char* tokenTypeToString(TokenType type) {
     switch (type) {
         case UNKNOWN: return "UNKNOWN";
@@ -67,16 +63,12 @@ const char* tokenTypeToString(TokenType type) {
     }
 }
 
-// Function to tokenize source code
 void tokenize(FILE *file) {
     if (!file) {
         perror("Failed to open source file");
         exit(1);
     }
-
-    rewind(file); // Reset file pointer for lexing
-
-    // Call the flex-generated tokenizer
+    rewind(file);
     yyin = file;
     tokenizer();
     

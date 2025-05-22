@@ -22,10 +22,7 @@ extern struct Stack bracesStack;
 extern struct Stack parenStack;
 extern int isEmpty(struct Stack *stack);
 
-// Add global statement count
 int statementCount = 0;
-
-// Add a flag to control verbose output
 int verboseOutput = 0;
 
 /**
@@ -35,7 +32,6 @@ int verboseOutput = 0;
  * @return void
  */
 void compileFile(const char* filename) {
-    // Initialize the symbol table at the start of compilation
     initSymbolTable();
     
     FILE *file = fopen(filename, "r");
@@ -44,14 +40,13 @@ void compileFile(const char* filename) {
         exit(1);
     }
 
-    // Determine output filename (replace .cx with .asm)
     char outputFile[256];
-    strncpy(outputFile, filename, sizeof(outputFile) - 5); // Leave room for extension
+    strncpy(outputFile, filename, sizeof(outputFile) - 5);
     outputFile[sizeof(outputFile) - 5] = '\0';
     
     char *dotPos = strrchr(outputFile, '.');
     if (dotPos) {
-        *dotPos = '\0'; // Remove extension
+        *dotPos = '\0';
     }
     strcat(outputFile, ".asm");
     
@@ -61,11 +56,9 @@ void compileFile(const char* filename) {
         printf("Compiling %s to %s\n", filename, outputFile);
     }
 
-    // Read source code
-    char source[10000] = {0}; // Increased buffer size
-    char line[1000]; // Increased line buffer
+    char source[10000] = {0}; 
+    char line[1000];
     while (fgets(line, sizeof(line), file)) {
-        // Check if we have enough space in the source buffer
         if (strlen(source) + strlen(line) >= sizeof(source) - 1) {
             printf("Error: Source file too large for buffer\n");
             fclose(file);
@@ -73,12 +66,9 @@ void compileFile(const char* filename) {
         }
         strcat(source, line);
     }
-
-    // Tokenize the source
     tokenize(file);
     fclose(file);
-
-    // Parse the tokens
+    
     current = head;
     if (!current) {
         printf("Error: No tokens to parse\n");
@@ -88,9 +78,8 @@ void compileFile(const char* filename) {
     #define MAX_STATEMENTS 100
     ASTNode* statements[MAX_STATEMENTS];
     ASTNode* prevNode = NULL;
-    astHead = NULL;  // Reset AST head
+    astHead = NULL;
     
-    // Initialize statement count
     int statementCount = 0;
     
     while (current && current->type != END_OF_FILE && statementCount < MAX_STATEMENTS) {
@@ -99,28 +88,19 @@ void compileFile(const char* filename) {
             printf("Warning: statement() returned NULL\n");
             continue;
         }
-        
-        // Store the node in our array
         statements[statementCount++] = node;
-        
-        // If this is the first statement, set it as the AST head
         if (statementCount == 1) {
             astHead = node;
             printf("AST head set to node type: %d\n", node->type);
         } else if (prevNode) {
-            // Link the previous node to this one
             prevNode->next = node;
             printf("Linked node %d to node %d\n", statementCount-2, statementCount-1);
         }
-        
-        // Update prevNode for the next iteration
         prevNode = node;
     }
-    
-    // Export AST JSON after parsing statements
+
     #include "components/ast_json_exporter.h"
 
-    // Create directory for JSON output if it doesn't exist
     #ifdef _WIN32
     system("mkdir ast_json 2>nul");
     #else
@@ -129,7 +109,6 @@ void compileFile(const char* filename) {
 
     exportASTsToSingleJSON(statements, statementCount, "ast_json/ast_all_statements.json");
 
-    // Check if all braces and parentheses are properly closed
     if (!isEmpty(&bracesStack)) {
         printf("Syntax Error: Unclosed braces '{' detected\n");
         exit(1);
@@ -139,17 +118,14 @@ void compileFile(const char* filename) {
         exit(1);
     }
     
-    // Print debug information
     printf("\nParsing completed. Starting semantic analysis...\n");
     
-    // Check if astHead is NULL
     if (!astHead) {
         printf("Error: AST is empty. No code to analyze.\n");
         exit(1);
     } else {
         printf("AST head is not NULL, type: %d\n", astHead->type);
         
-        // Debug: Print the first few nodes to verify the AST structure
         ASTNode* temp = astHead;
         int count = 0;
         while (temp && count < 5) {
@@ -158,8 +134,6 @@ void compileFile(const char* filename) {
             count++;
         }
     }
-    
-    // Perform semantic analysis and code generation
     analyzeAndGenerateCode(astHead, outputFile);
     
     printf("\nCompilation completed successfully.\n");

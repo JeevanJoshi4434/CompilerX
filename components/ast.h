@@ -4,11 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "symbol_table.h"  // Include this to get VariableType definition
+#include "symbol_table.h"
 
 #define ARENA_BLOCK_SIZE 8192 // 8KB blocks for memory pooling in order to remove memory leaks
 
-// Forward declaration
 typedef struct ASTNode ASTNode;
 
 typedef enum
@@ -19,9 +18,9 @@ typedef enum
     NODE_BOOLEAN_LITERAL,
     NODE_VAR_REF,
     NODE_BINARY_OP,
-    NODE_LOGICAL_OP,     // For logical operators like && and ||
-    NODE_RELATIONAL_OP,  // For relational operators like ==, !=, <, >, <=, >=
-    NODE_COMPARISON_OP,  // For comparison operations
+    NODE_LOGICAL_OP,     
+    NODE_RELATIONAL_OP,  
+    NODE_COMPARISON_OP,
     NODE_ASSIGN,
     NODE_VAR_DECL,
     NODE_PRINT,
@@ -43,34 +42,31 @@ typedef struct Arena
     struct Arena *next;
 } Arena;
 
-// Function parameter structure
 typedef struct {
     char name[50];
-    int type;  // TYPE_INT, TYPE_FLOAT, etc.
+    int type;  
 } FunctionParam;
 
-// Function definition node
+
 struct FuncDefNode {
     char name[50];
-    FunctionParam *params;  // Array of parameters
-    int paramCount;         // Number of parameters
+    FunctionParam *params; 
+    int paramCount;         
     struct ASTNode *body;
-    int returnType;         // Return type (TYPE_INT, TYPE_VOID, etc.)
+    int returnType;     
 };
 
-// Function call node
 struct FuncCallNode {
     char name[50];
-    struct ASTNode *args;   // Linked list of argument expressions
-    int argCount;           // Number of arguments
+    struct ASTNode *args;  
+    int argCount;     
 };
 
-// Return statement node
 struct ReturnNode {
-    struct ASTNode *expr;   // Return expression (can be NULL for void functions)
+    struct ASTNode *expr; 
 };
 
-// Define the AST node structure
+
 typedef struct ASTNode {
     NodeType type;
     
@@ -131,7 +127,7 @@ typedef struct ASTNode {
         struct {
             char name[MAX_VAR_NAME_LENGTH];
             struct ASTNode *value;
-            int type;  // Variable type (int, string, etc.)
+            int type;  // Variable type (num, str, etc.)
         } varDecl;
         
         // For print statements
@@ -183,7 +179,7 @@ typedef struct ASTNode {
     struct ASTNode *next;
 } ASTNode;
 
-// Function declarations
+
 Arena *createArena();
 void *allocateFromArena(Arena *arena, size_t size);
 void freeArena();

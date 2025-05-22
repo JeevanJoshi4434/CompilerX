@@ -1,4 +1,4 @@
-num x = 1000 ;
+num x = 10 ;
 num y = 15 ;
 print x ;
 print y ;

@@ -21,7 +21,6 @@ ASTNode* conditional() {
     }
     nextToken();
     
-    // Parse the condition expression
     ASTNode *cond = parseCondition(1);
     if (current->type != RPAREN) {
         printf("Error: Missing ')' after condition\n");
@@ -29,14 +28,12 @@ ASTNode* conditional() {
     }
     nextToken();
 
-    // Check for '{' before the 'if' body
     if (current->type != LBRACE) {
         printf("Error: Missing '{' after condition\n");
         exit(1);
     }
     nextToken();
     
-    // Parse the 'if' body statement
     ASTNode *thenStmt = statement();
     if (current->type != RBRACE) {
         printf("Error: Missing '}' after IF body\n");
@@ -44,13 +41,10 @@ ASTNode* conditional() {
     }
     nextToken();
 
-    // Handle 'else' or 'else if'
     if (current->type == ELSE) {
         nextToken();
-        
-        // Check for 'if' after 'else' (this handles the 'else if' case)
         if (current->type == IF) {
-            ASTNode *elseIfStmt = conditional();  // Recursively handle the else-if case
+            ASTNode *elseIfStmt = conditional();  
             ASTNode *node = allocateNode(NODE_IF);
             if (!node) {
                 printf("Memory Error: Failed to allocate memory for else-if node\n");
@@ -58,13 +52,11 @@ ASTNode* conditional() {
             }
             node->ifNode.condition = cond;
             node->ifNode.thenStmt = thenStmt;
-            node->ifNode.elseStmt = elseIfStmt;  // Assign the else-if statement as the else
+            node->ifNode.elseStmt = elseIfStmt;
             return node;
         }
-        
-        // Otherwise, handle a plain 'else'
         if (current->type == LBRACE) {
-            ASTNode *elseStmt = statement();  // Parse the 'else' body
+            ASTNode *elseStmt = statement();
             if (current->type != RBRACE) {
                 printf("Error: Missing '}' after ELSE body\n");
                 exit(1);
@@ -78,12 +70,11 @@ ASTNode* conditional() {
             }
             node->ifNode.condition = cond;
             node->ifNode.thenStmt = thenStmt;
-            node->ifNode.elseStmt = elseStmt;  // Assign the 'else' statement
+            node->ifNode.elseStmt = elseStmt;
             return node;
         }
     }
 
-    // No else, return the current node
     ASTNode *node = allocateNode(NODE_IF);
     if (!node) {
         printf("Memory Error: Failed to allocate memory for if node\n");
@@ -91,6 +82,6 @@ ASTNode* conditional() {
     }
     node->ifNode.condition = cond;
     node->ifNode.thenStmt = thenStmt;
-    node->ifNode.elseStmt = NULL;  // No 'else' or 'else if'
+    node->ifNode.elseStmt = NULL;  
     return node;
 }

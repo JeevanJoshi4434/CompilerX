@@ -5,14 +5,11 @@
 #include "../memory.h"
 #include "../symbol_table.h"
 
-// Define stack size
 #define MAX_STACK_SIZE 100
 
-// Initialize stacks
 struct Stack bracesStack = { .top = -1 };
 struct Stack parenStack = { .top = -1 };
 
-// Stack operations
 void push(struct Stack *stack, char item) {
     if (stack->top >= MAX_STACK_SIZE - 1) {
         printf("Error: Stack overflow\n");
@@ -23,7 +20,7 @@ void push(struct Stack *stack, char item) {
 
 char pop(struct Stack *stack) {
     if (stack->top < 0) {
-        return '\0'; // Empty stack
+        return '\0'; 
     }
     return stack->items[(stack->top)--];
 }
@@ -35,8 +32,6 @@ int isEmpty(struct Stack *stack) {
 void nextToken() {
     if (current) {
         current = current->next;
-        
-        // Track braces and parentheses
         if (current) {
             if (current->type == LBRACE) {
                 push(&bracesStack, '{');

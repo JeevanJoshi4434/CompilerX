@@ -2,23 +2,20 @@
 #include <string.h>
 #include "memory.h"
 
-// Define the memory block structure
 typedef struct MemoryBlock {
     void* block;
     struct MemoryBlock* next;
 } MemoryBlock;
 
-// Global variables
 ASTNode* astHead = NULL;
 ASTNode* astTail = NULL;
 MemoryBlock* memoryBlockHead = NULL;
 Arena* arenaHead = NULL;
 
-// Memory management functions
 void* arenaAlloc(size_t size) {
     if (size == 0) {
         printf("Warning: Attempted to allocate 0 bytes\n");
-        size = 1; // Allocate at least 1 byte
+        size = 1;
     }
     
     void* block = malloc(size);
@@ -27,14 +24,12 @@ void* arenaAlloc(size_t size) {
         exit(1);
     }
     
-    // Initialize memory to zero to prevent uninitialized memory issues
     memset(block, 0, size);
     
-    // Store the allocated block in a linked list for later cleanup
     MemoryBlock* newBlock = malloc(sizeof(MemoryBlock));
     if (!newBlock) {
         printf("Fatal error: Memory allocation failed for memory block tracking\n");
-        free(block); // Free the previously allocated block
+        free(block); 
         exit(1);
     }
     
@@ -52,8 +47,7 @@ ASTNode* allocateNode(NodeType type) {
         exit(1);
     }
     
-    // Initialize the node
-    memset(node, 0, sizeof(ASTNode));  // Zero out all fields
+    memset(node, 0, sizeof(ASTNode)); 
     node->type = type;
     node->next = NULL;
     

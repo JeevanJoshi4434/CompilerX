@@ -5,12 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Define a simple visited nodes tracking system
 #define MAX_VISITED_NODES 1000
 ASTNode* semanticVisitedNodes[MAX_VISITED_NODES];
 int semanticVisitedCount = 0;
 
-// Check if a node has been visited before
 int semanticHasVisited(ASTNode* node) {
     printf("Checking if node %p has been visited before\n", (void*)node);
     for (int i = 0; i < semanticVisitedCount; i++) {
@@ -23,19 +21,16 @@ int semanticHasVisited(ASTNode* node) {
     return 0;
 }
 
-// Mark a node as visited
 void semanticMarkVisited(ASTNode* node) {
     if (semanticVisitedCount < MAX_VISITED_NODES) {
         semanticVisitedNodes[semanticVisitedCount++] = node;
     }
 }
 
-// Reset visited nodes
 void semanticResetVisited() {
     semanticVisitedCount = 0;
 }
 
-// Helper function to convert type to string
 const char* typeToString(int type) {
     switch(type) {
         case TYPE_NUMBER: return "number";
@@ -45,7 +40,6 @@ const char* typeToString(int type) {
     }
 }
 
-// Add this function at the top of semantic.c
 void dumpSymbolTable() {
     printf("=== SYMBOL TABLE DUMP ===\n");
     for (int i = 0; i < symCount; i++) {
@@ -55,23 +49,19 @@ void dumpSymbolTable() {
     printf("========================\n");
 }
 
-// Perform semantic analysis on the AST
 void checkSemantic(ASTNode *node) {
     if (!node) {
         printf("Warning: Null node encountered in semantic analysis\n");
         return;
     }
 
-    // Dump symbol table at the start of each node check
     dumpSymbolTable();
 
-    // Check for circular references
     if (semanticHasVisited(node)) {
         printf("Warning: Circular reference detected in AST. Skipping node.\n");
         return;
     }
     
-    // Mark this node as visited
     semanticMarkVisited(node);
 
     printf("Checking node type: %d\n", node->type);
@@ -85,7 +75,6 @@ void checkSemantic(ASTNode *node) {
             }
             printf("Variable '%s' found in symbol table\n", node->assign.name);
             
-            // Check type compatibility
             if (node->assign.expr) {
                 int exprType = getExprType(node->assign.expr);
                 int varType = getSymbolType(node->assign.name);
@@ -110,26 +99,7 @@ void checkSemantic(ASTNode *node) {
         case NODE_VAR_DECL:
             printf("Checking variable declaration: %s\n", node->varDecl.name);
             
-            // Skip the duplicate declaration check since we've already inserted
-            // these symbols during parsing
-            /*
-            // Check if variable is already declared
-            if (lookupSymbol(node->varDecl.name) != -1) {
-                // Add debug output to see what's in the symbol table
-                printf("Debug: Symbol table contents before error:\n");
-                for (int i = 0; i < symCount; i++) {
-                    printf("  Symbol[%d]: name='%s', type=%d, value=%d\n", 
-                           i, symTable[i].name, symTable[i].type, symTable[i].value);
-                }
-                
-                printf("Semantic Error: Variable '%s' already declared\n", node->varDecl.name);
-                exit(1);
-            }
-            */
-            
-            // Just check type compatibility for the initialization
             if (node->varDecl.value) {
-                // Check type compatibility for variable declaration
                 int declaredType = node->varDecl.type;
                 int valueType = getExprType(node->varDecl.value);
                 
@@ -154,30 +124,7 @@ void checkSemantic(ASTNode *node) {
                 exit(1);
             }
             
-            // Be careful with these checks - they might be causing crashes
             printf("Function '%s' found in symbol table\n", node->funcCall.name);
-            
-            // Temporarily disable complex checks that might be causing crashes
-            /*
-            if (getFunctionArgCount(node->funcCall.name) != countArgs(node->funcCall.args)) {
-                printf("Semantic Error: Function '%s' called with wrong number of arguments\n", node->funcCall.name);
-                exit(1);
-            }
-            
-            {
-                ASTNode *arg = node->funcCall.args;
-                int *expectedTypes = getFunctionArgTypes(node->funcCall.name);
-                int i = 0;
-                while (arg) {
-                    if (getExprType(arg) != expectedTypes[i]) {
-                        printf("Semantic Error: Argument %d type mismatch in function call '%s'\n", i+1, node->funcCall.name);
-                        exit(1);
-                    }
-                    arg = arg->next;
-                    i++;
-                }
-            }
-            */
             
             if (node->funcCall.args) {
                 checkSemantic(node->funcCall.args);
@@ -259,12 +206,10 @@ void checkSemantic(ASTNode *node) {
 
         case NODE_NUMBER:
             printf("Checking number: %d\n", node->number);
-            // Nothing to check for a number literal
             break;
 
         case NODE_STRING_LITERAL:
             printf("Checking string literal: %s\n", node->stringLiteral.value);
-            // Nothing to check for a string literal
             break;
 
         default:
@@ -281,30 +226,30 @@ void checkSemantic(ASTNode *node) {
     }
 }
 
-// Function to perform semantic analysis and generate code
+/**
+ * @brief Analyzes the AST and generates assembly code.
+ * 
+ * @param root The root node of the AST.
+ * @param outputFile The output file name for the assembly code.
+ * @return void
+ */
 void analyzeAndGenerateCode(ASTNode *root, const char *outputFile) {
     printf("Starting semantic analysis...\n");
     
-    // Check if root is NULL
     if (!root) {
         printf("Error: AST is empty. No code to analyze.\n");
         exit(1);
     }
     
-    // Reset visited nodes tracking
     semanticResetVisited();
     
-    // First, perform semantic analysis
     printf("Checking AST...\n");
     checkSemantic(root);
     
-    // If semantic analysis passes, generate code
     printf("Semantic analysis completed successfully.\n");
     
-    // Debug: Print the output file name
     printf("Generating assembly code to: %s\n", outputFile);
     
-    // Generate the assembly code
     generateAssembly(outputFile);
     
     printf("Code generation completed successfully.\n");

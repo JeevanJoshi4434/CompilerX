@@ -8,7 +8,6 @@ int symCount = 0;
 void initSymbolTable() {
     printf("DEBUG: Initializing symbol table...\n");
     symCount = 0;
-    // Clear all entries to be safe
     for (int i = 0; i < MAX_SYMBOLS; i++) {
         symTable[i].name[0] = '\0';
         symTable[i].value = 0;
@@ -27,7 +26,7 @@ int insertSymbol(const char* name, int value, VariableType type) {
     
     strcpy(symTable[symCount].name, name);
     symTable[symCount].value = value;
-    symTable[symCount].type = type;  // Store the type
+    symTable[symCount].type = type; 
     
     printf("DEBUG: Symbol inserted at index %d\n", symCount);
     

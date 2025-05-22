@@ -20,7 +20,6 @@ ASTNode *functionDef()
         exit(1);
     }
     nextToken();
-    // ASTNode *params = parseParameterList(); ignore parameters for now
     if (current->type != RPAREN)
     {
         printf("Error: Expected ')' after parameters\n");
@@ -51,9 +50,6 @@ ASTNode *functionDef()
 ASTNode *functionCall()
 {
     nextToken();
-    
-    // Implement ASAP lookup of function definition making a pool of functions or function table
-
     ASTNode *node = allocateNode(NODE_FUNC_CALL);
     strcpy(node->funcCall.name, current->value);
     nextToken();

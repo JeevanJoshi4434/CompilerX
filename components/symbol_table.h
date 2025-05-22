@@ -4,7 +4,6 @@
 #define MAX_SYMBOLS 100
 #define MAX_VAR_NAME_LENGTH 50
 
-// Define variable types
 typedef enum {
     TYPE_UNKNOWN = -1,
     TYPE_NUMBER,
@@ -15,7 +14,7 @@ typedef enum {
 typedef struct {
     char name[MAX_VAR_NAME_LENGTH];
     int value;
-    VariableType type;  // Add type field to store variable type
+    VariableType type;
 } Symbol;
 
 extern Symbol symTable[MAX_SYMBOLS];
@@ -25,6 +24,6 @@ void initSymbolTable();
 int insertSymbol(const char* name, int value, VariableType type);
 int lookupSymbol(const char* name);
 int getSymbolValue(const char* name);
-VariableType getSymbolType(const char* name);  // Add function to get symbol type
+VariableType getSymbolType(const char* name); 
 
 #endif // SYMBOL_TABLE_H

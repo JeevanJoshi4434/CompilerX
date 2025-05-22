@@ -1,12 +1,11 @@
 #include "../memory.h"
 #include "header/parser.h"
 #include "header/expressions.h"
-#include "../tokens.h"  // Add this include for token types
+#include "../tokens.h"  
 
 extern Token* current;
 extern void nextToken();
 
-// Forward declarations
 ASTNode* factor();
 ASTNode* primary();
 ASTNode* multiplicative();
@@ -16,7 +15,6 @@ ASTNode* logical();
 ASTNode* parseExpression(int minPrecedence);
 ASTNode* functionCall(const char* name);
 
-// Primary expression: factor or (expression)
 ASTNode* primary() {
     if (current && current->type == LPAREN) {
         nextToken();
@@ -35,13 +33,11 @@ ASTNode* primary() {
     return factor();
 }
 
-// Factor: number, identifier, or function call
 ASTNode* factor() {
     if (!current) {
         printf("Error: Unexpected end of input\n");
         exit(1);
     }
-    
     if (current->type == NUMBER) {
         ASTNode* node = allocateNode(NODE_NUMBER);
         node->number = atoi(current->value);
@@ -61,13 +57,9 @@ ASTNode* factor() {
         char name[MAX_VAR_NAME_LENGTH];
         strcpy(name, current->value);
         nextToken();
-        
-        // Check if this is a function call
         if (current && current->type == LPAREN) {
             return functionCall(name);
         }
-        
-        // Otherwise, it's a variable reference
         ASTNode* node = allocateNode(NODE_VAR_REF);
         strcpy(node->varRef.name, name);
         return node;
@@ -165,8 +157,6 @@ ASTNode* parseCondition(int minPrecedence) {
     printf("After parsing left expression, current token: %s, type: %s\n", 
            current ? current->value : "NULL", 
            current ? tokenTypeToString(current->type) : "NULL");
-
-    // Handle relational operators
     if (current && current->type == RELOP) {
         printf("Found relational operator: %s\n", current->value);
         
@@ -185,18 +175,14 @@ ASTNode* parseCondition(int minPrecedence) {
         node->relOp.left = left;
         node->relOp.right = right;
         
-        left = node;  // Update left for potential logical operations
+        left = node;  
     }
-    
-    // Handle logical operators (AND, OR)
     while (current && (current->type == AND || current->type == OR)) {
         printf("Found logical operator: %s\n", current->value);
         
         TokenType opType = current->type;
         nextToken();
-        
-        // Parse the right side of the logical operation
-        ASTNode *right = parseCondition(0);  // Recursively parse the right condition
+        ASTNode *right = parseCondition(0);
         
         ASTNode *node = allocateNode(NODE_LOGICAL_OP);
         node->logicalOp.op[0] = (opType == AND) ? '&' : '|';
@@ -205,7 +191,7 @@ ASTNode* parseCondition(int minPrecedence) {
         node->logicalOp.left = left;
         node->logicalOp.right = right;
         
-        left = node;  // Update left for potential additional logical operations
+        left = node;  
     }
     
     return left;
@@ -217,15 +203,13 @@ int getPrecedence(char op) {
     if (op == '+' || op == '-') return 5;
     if (op == '*' || op == '/') return 6;
     if (op == '^') return 7;
-    // Add precedence for relational operators
     if (op == '<' || op == '>' || op == '=') return 4;
     return 0;
 }
 
-// Determines if an operator is right-associative (like exponentiation)
 
 int isRightAssociative(char op) {
-    return (op == '^');  // Exponentiation is right-associative
+    return (op == '^');
 }
 
 
@@ -287,7 +271,6 @@ int isComparisonOperator(const char *value) {
            strcmp(value, ">=") == 0;
 }
 
-// Additive expression: multiplicative (('+' | '-') multiplicative)*
 ASTNode* additive() {
     ASTNode* left = multiplicative();
     
@@ -307,7 +290,6 @@ ASTNode* additive() {
     return left;
 }
 
-// Multiplicative expression: primary (('*' | '/') primary)*
 ASTNode* multiplicative() {
     ASTNode* left = primary();
     
